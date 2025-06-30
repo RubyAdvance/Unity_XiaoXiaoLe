@@ -1,7 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
 public class GameController : MonoBehaviour
 {
     [Header("底部冰块网格的生成")]
@@ -27,6 +26,12 @@ public class GameController : MonoBehaviour
     /// 当前选中的水果
     /// </summary>
     public FruitItem curFruiItem;
+    /// <summary>
+    /// 待消除的水果列表
+    /// </summary>
+    /// <typeparam name="FruitItem"></typeparam>
+    /// <returns></returns>
+    private List<FruitItem> needToEliminateList = new List<FruitItem>();
 
     /// <summary>
     /// 手指水平滑动量
@@ -172,7 +177,125 @@ public class GameController : MonoBehaviour
     IEnumerator ExchangeAndMatch(FruitItem fruitItem, FruitItem targetItem)
     {
         //交换水果
+        FruitChange(fruitItem, targetItem);
+        needToEliminateList.Clear();
+        yield return new WaitForSeconds(0.2f);
         //检测消除
-        yield return null;
+        if (CheckEliminateHorizontal() || CheckEliminateVertical())
+        {
+            RemoveEliminateFruits();
+            yield return new WaitForSeconds(0.6f);
+            //上方水果掉落
+            DropOtherFruits();
+            //消除列表置空
+            needToEliminateList.Clear();
+            yield return new WaitForSeconds(0.2f);
+            //再次检测
+            StartCoroutine(AutoEliminate());
+        }
+        else
+        {
+            //没有任何消除，回退交换
+            FruitChange(fruitItem, targetItem);
+        }
+    }
+
+    void FruitChange(FruitItem fruitItem, FruitItem targetItem)
+    {
+        var tempRow = fruitItem.row;
+        var tempCol = fruitItem.col;
+        fruitItem.UpdateRowCol(targetItem.row, targetItem.col);
+        targetItem.UpdateRowCol(tempRow, tempCol);
+        //置空
+        curFruiItem = null;
+
+    }
+
+    bool CheckEliminateHorizontal()
+    {
+        bool isEliminate = false;
+        for (int rowIndex = 0; rowIndex < rowCount; rowIndex++)
+        {
+            for (int colIndex = 0; colIndex < colCount - 2; colIndex++)
+            {
+                var item1 = fruitItemDict[rowIndex][colIndex];
+                var item2 = fruitItemDict[rowIndex][colIndex + 1];
+                var item3 = fruitItemDict[rowIndex][colIndex + 2];
+                if (null != item1 && null != item2 && null != item3 && item1.type == item2.type && item2.type == item3.type)
+                {
+                    isEliminate = true;
+                    if (!needToEliminateList.Contains(item1)) needToEliminateList.Add(item1);
+                    if (!needToEliminateList.Contains(item2)) needToEliminateList.Add(item2);
+                    if (!needToEliminateList.Contains(item3)) needToEliminateList.Add(item3);
+                }
+            }
+        }
+        return isEliminate;
+    }
+
+    bool CheckEliminateVertical()
+    {
+        bool isEliminate = false;
+        for (int colIndex = 0; colIndex < colCount; colIndex++)
+        {
+            for (int rowIndex = 0; rowIndex < rowCount - 2; rowIndex++)
+            {
+                var item1 = fruitItemDict[rowIndex][colIndex];
+                var item2 = fruitItemDict[rowIndex + 1][colIndex];
+                var item3 = fruitItemDict[rowIndex + 2][colIndex];
+                if (null != item1 && null != item2 && null != item3 && item1.type == item2.type && item2.type == item3.type)
+                {
+                    isEliminate = true;
+                    if (!needToEliminateList.Contains(item1)) needToEliminateList.Add(item1);
+                    if (!needToEliminateList.Contains(item2)) needToEliminateList.Add(item2);
+                    if (!needToEliminateList.Contains(item3)) needToEliminateList.Add(item3);
+                }
+            }
+        }
+        return isEliminate;
+    }
+
+    void RemoveEliminateFruits()
+    {
+        for (int i = needToEliminateList.Count - 1; i >= 0; i--)
+        {
+            Destroy(needToEliminateList[i].gameObject);
+            //字典数据更新,消除的只置空不删除，后续可做填充判断
+            var row = needToEliminateList[i].row;
+            var col = needToEliminateList[i].col;
+            fruitItemDict[row][col] = null;
+        }
+    }
+    /// <summary>
+    /// 被消除的水果上方的水果需要掉落下来
+    /// </summary>
+    void DropOtherFruits()
+    {
+        for (int i = 0; i < needToEliminateList.Count; i++)
+        {
+            var startRow = needToEliminateList[i].row + 1;
+            for (int j = startRow; j < rowCount; i++)
+            {
+                var dropFruit = fruitItemDict[j][needToEliminateList[i].col];
+                dropFruit.UpdateRowCol(dropFruit.row - 1, dropFruit.col);
+            }
+
+        }
+        //删除的
+    }
+
+    IEnumerator AutoEliminate()
+    {
+        if (CheckEliminateHorizontal() || CheckEliminateVertical())
+        {
+            RemoveEliminateFruits();
+            yield return new WaitForSeconds(0.2f);
+            DropOtherFruits();
+            //消除列表置空
+            needToEliminateList.Clear();
+            yield return new WaitForSeconds(0.6f);
+            //递归调用
+            StartCoroutine(AutoEliminate());
+        }
     }
 }
