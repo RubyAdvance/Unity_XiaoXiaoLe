@@ -123,6 +123,37 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &146904496
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 146904497}
+  m_Layer: 0
+  m_Name: FruitSpwan
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &146904497
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 146904496}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2083270540}
+  m_RootOrder: 1
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &175508728
 GameObject:
   m_ObjectHideFlags: 0
@@ -413,6 +444,14 @@ MonoBehaviour:
   iceWidth: 0.98
   icePrefab: {fileID: 1062310726}
   iceParent: {fileID: 1845870951}
+  fruitParent: {fileID: 146904497}
+  fruitPrefabs:
+  - {fileID: 6495195642801930638, guid: 26f31c69cb8504737a409c21ec459ade, type: 3}
+  - {fileID: 6940754778302768161, guid: 045b6f6a4a8c348e5a40bc3916734b19, type: 3}
+  - {fileID: 7922391712176513476, guid: e4458e35ee5ac457db97a2816700082c, type: 3}
+  - {fileID: 4284805682473295380, guid: 1564bcf17d0bc48b4b2e436d8892ff0f, type: 3}
+  - {fileID: 7922391712176513476, guid: 6242e5051874f4ac48baf028b713ab5b, type: 3}
+  - {fileID: 7934171758095236014, guid: f50e078203c25498db2c0dd4ff738432, type: 3}
 --- !u!1 &549924236
 GameObject:
   m_ObjectHideFlags: 0
@@ -925,6 +964,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1845870951}
+  - {fileID: 146904497}
   m_Father: {fileID: 0}
   m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
