@@ -11,19 +11,31 @@ public class FruitItem : MonoBehaviour
 
     public void UpdateRowCol(int row, int col)
     {
+        // 添加边界检查
+        if (row < 0 || col < 0 || row >= GameController.instance.rowCount || col >= GameController.instance.colCount)
+        {
+            Debug.LogWarning($"试图更新水果到无效位置: ({row}, {col})");
+            return;
+        }
+
         this.row = row;
         this.col = col;
         var targetPos = GameController.instance.icePosDict[row][col];
-        //设置位置
         transform.DOLocalMove(targetPos, 0.2f);
-        //存储
-        if (!GameController.instance.fruitItemDict.ContainsKey(row)) GameController.instance.fruitItemDict.Add(row, new Dictionary<int, FruitItem>());
+
+        // 确保字典中存在该行
+        if (!GameController.instance.fruitItemDict.ContainsKey(row))
+        {
+            GameController.instance.fruitItemDict.Add(row, new Dictionary<int, FruitItem>());
+        }
+
+        // 更新字典引用
         GameController.instance.fruitItemDict[row][col] = this;
     }
 
     void OnMouseDown()
     {
-        if(GameController.instance.curFruiItem!= null) Debug.LogError("持有的不为空！！");
+        if (GameController.instance.curFruiItem != null) Debug.LogError("持有的不为空！！");
         GameController.instance.curFruiItem = this;
     }
 }

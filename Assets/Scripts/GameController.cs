@@ -1,11 +1,12 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 public class GameController : MonoBehaviour
 {
     [Header("底部冰块网格的生成")]
-    private int rowCount = 9;
-    private int colCount = 7;
+    public int rowCount = 9;
+    public int colCount = 7;
     public float iceWidth = 0.98f;
     public GameObject icePrefab;
     public Transform iceParent;
@@ -55,9 +56,19 @@ public class GameController : MonoBehaviour
     void Awake()
     {
         _instance = this;
+
+        // 初始化水果字典
+        for (int row = 0; row < rowCount; row++)
+        {
+            fruitItemDict[row] = new Dictionary<int, FruitItem>();
+            for (int col = 0; col < colCount; col++)
+            {
+                fruitItemDict[row][col] = null;
+            }
+        }
         SpwanIce();
         SpawanFruits();
-
+        StartCoroutine(AutoEliminate());
     }
 
     /// <summary>
@@ -99,7 +110,7 @@ public class GameController : MonoBehaviour
             for (int colIndex = 0; colIndex < colCount; colIndex++)
             {
                 //随机生成水果
-                var fruitPrefab = fruitPrefabs[Random.Range(0, fruitPrefabs.Length)];
+                var fruitPrefab = fruitPrefabs[UnityEngine.Random.Range(0, fruitPrefabs.Length)];
                 var obj = Instantiate(fruitPrefab, fruitParent);
                 //初始化
                 var fruitItem = obj.GetComponent<FruitItem>();
@@ -185,12 +196,12 @@ public class GameController : MonoBehaviour
         {
             RemoveEliminateFruits();
             yield return new WaitForSeconds(0.6f);
-            //上方水果掉落
+            //上方水果掉落并生成新水果
             DropOtherFruits();
             //消除列表置空
             needToEliminateList.Clear();
-            yield return new WaitForSeconds(0.2f);
-            //再次检测
+            yield return new WaitForSeconds(0.6f); // 等待动画完成
+                                                   //再次检测
             StartCoroutine(AutoEliminate());
         }
         else
@@ -218,10 +229,21 @@ public class GameController : MonoBehaviour
         {
             for (int colIndex = 0; colIndex < colCount - 2; colIndex++)
             {
+                // 添加空值检查
+                if (!fruitItemDict[rowIndex].ContainsKey(colIndex) ||
+                    !fruitItemDict[rowIndex].ContainsKey(colIndex + 1) ||
+                    !fruitItemDict[rowIndex].ContainsKey(colIndex + 2))
+                    continue;
+
                 var item1 = fruitItemDict[rowIndex][colIndex];
                 var item2 = fruitItemDict[rowIndex][colIndex + 1];
                 var item3 = fruitItemDict[rowIndex][colIndex + 2];
-                if (null != item1 && null != item2 && null != item3 && item1.type == item2.type && item2.type == item3.type)
+
+                // 添加空引用检查
+                if (item1 == null || item2 == null || item3 == null)
+                    continue;
+
+                if (item1.type == item2.type && item2.type == item3.type)
                 {
                     isEliminate = true;
                     if (!needToEliminateList.Contains(item1)) needToEliminateList.Add(item1);
@@ -232,6 +254,8 @@ public class GameController : MonoBehaviour
         }
         return isEliminate;
     }
+
+    // 对CheckEliminateVertical做同样的空值检查
 
     bool CheckEliminateVertical()
     {
@@ -259,29 +283,111 @@ public class GameController : MonoBehaviour
     {
         for (int i = needToEliminateList.Count - 1; i >= 0; i--)
         {
+            // 先记录行列信息再销毁
+            int row = needToEliminateList[i].row;
+            int col = needToEliminateList[i].col;
+
             Destroy(needToEliminateList[i].gameObject);
-            //字典数据更新,消除的只置空不删除，后续可做填充判断
-            var row = needToEliminateList[i].row;
-            var col = needToEliminateList[i].col;
-            fruitItemDict[row][col] = null;
+
+            // 确保字典中存在该行
+            if (fruitItemDict.ContainsKey(row))
+            {
+                fruitItemDict[row][col] = null;
+            }
         }
     }
-    /// <summary>
-    /// 被消除的水果上方的水果需要掉落下来
-    /// </summary>
     void DropOtherFruits()
     {
-        for (int i = 0; i < needToEliminateList.Count; i++)
+        for (int col = 0; col < colCount; col++)
         {
-            var startRow = needToEliminateList[i].row + 1;
-            for (int j = startRow; j < rowCount; i++)
+            // 用来存储这一列中所有非空的水果（从下往上收集）
+            List<FruitItem> existingFruits = new List<FruitItem>();
+
+            for (int row = 0; row < rowCount; row++)
             {
-                var dropFruit = fruitItemDict[j][needToEliminateList[i].col];
-                dropFruit.UpdateRowCol(dropFruit.row - 1, dropFruit.col);
+                if (fruitItemDict[row][col] != null)
+                {
+                    existingFruits.Add(fruitItemDict[row][col]);
+                    fruitItemDict[row][col] = null; // 清空位置
+                }
             }
 
+            // 从下往上把已有水果按顺序重新填回去
+            int newRow = 0;
+            foreach (var fruit in existingFruits)
+            {
+                fruit.UpdateRowCol(newRow, col);
+                newRow++;
+            }
+
+            // 剩余行数需要新生成水果
+            for (int row = newRow; row < rowCount; row++)
+            {
+                var fruitPrefab = fruitPrefabs[UnityEngine.Random.Range(0, fruitPrefabs.Length)];
+                var obj = Instantiate(fruitPrefab, fruitParent);
+
+                // 设置生成初始位置在顶部之上
+                Vector3 topPos = icePosDict[rowCount - 1][col];
+                float spawnHeight = topPos.y + iceWidth * (row - newRow + 1); // 按照差值上浮
+                obj.transform.localPosition = new Vector3(topPos.x, spawnHeight, topPos.z);
+
+                var fruitItem = obj.GetComponent<FruitItem>();
+                fruitItem.row = row;
+                fruitItem.col = col;
+
+                fruitItem.UpdateRowCol(row, col); // 会自动滑动到目标位置
+            }
         }
-        //删除的
+    }
+
+
+    void SpawnNewFruits()
+    {
+        // 统计每列需要生成的新水果数量
+        for (int col = 0; col < colCount; col++)
+        {
+            // 找出该列的所有空位
+            List<int> emptyRows = new List<int>();
+            for (int row = 0; row < rowCount; row++)
+            {
+                if (fruitItemDict[row][col] == null)
+                {
+                    emptyRows.Add(row);
+                }
+            }
+
+            // 如果没有空位，跳过
+            if (emptyRows.Count == 0) continue;
+
+            // 从高到低排序（顶部优先）
+            emptyRows.Sort((a, b) => b.CompareTo(a));
+
+            // 生成新水果填充空位
+            for (int i = 0; i < emptyRows.Count; i++)
+            {
+                int targetRow = emptyRows[i];
+
+                // 随机生成水果
+                var fruitPrefab = fruitPrefabs[UnityEngine.Random.Range(0, fruitPrefabs.Length)];
+                var obj = Instantiate(fruitPrefab, fruitParent);
+
+                // 设置初始位置在顶部上方
+                Vector3 topPos = icePosDict[rowCount - 1][col];
+                float spawnHeight = topPos.y + iceWidth * (emptyRows.Count - i);
+                obj.transform.localPosition = new Vector3(topPos.x, spawnHeight, topPos.z);
+
+                // 初始化水果
+                var fruitItem = obj.GetComponent<FruitItem>();
+                fruitItem.row = targetRow;
+                fruitItem.col = col;
+
+                // 立即更新位置（从上方掉落）
+                fruitItem.UpdateRowCol(targetRow, col);
+
+                // 更新字典引用
+                fruitItemDict[targetRow][col] = fruitItem;
+            }
+        }
     }
 
     IEnumerator AutoEliminate()
