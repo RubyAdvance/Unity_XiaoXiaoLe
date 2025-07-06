@@ -201,7 +201,7 @@ public class GameController : MonoBehaviour
             //消除列表置空
             needToEliminateList.Clear();
             yield return new WaitForSeconds(0.6f); // 等待动画完成
-                                                   //再次检测
+            //再次检测
             StartCoroutine(AutoEliminate());
         }
         else
@@ -396,7 +396,7 @@ public class GameController : MonoBehaviour
         if (CheckEliminateHorizontal() || CheckEliminateVertical())
         {
             RemoveEliminateFruits();
-            yield return new WaitForSeconds(0.2f);
+            yield return new WaitForSeconds(0.6f);
             DropOtherFruits();
             //消除列表置空
             needToEliminateList.Clear();
