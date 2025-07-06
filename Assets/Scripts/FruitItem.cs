@@ -44,5 +44,6 @@ public class FruitItem : MonoBehaviour
         Destroy(gameObject);
         //播放特效
         EffectSpwan.Instance.ShowEffect(transform.position);
+        EffectSpwan.Instance.ShowScore(transform.position);
     }
 }

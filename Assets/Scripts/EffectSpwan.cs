@@ -8,6 +8,7 @@ using UnityEngine;
 public class EffectSpwan : MonoBehaviour
 {
     public GameObject effectPrefab;
+    public GameObject scorePrefab;
     public Transform effectRoot;
     private static EffectSpwan _instance;
     public static EffectSpwan Instance
@@ -20,6 +21,7 @@ public class EffectSpwan : MonoBehaviour
     /// <typeparam name="GameObject"></typeparam>
     /// <returns></returns>
     private Queue<GameObject> effectPool = new Queue<GameObject>();
+    private Queue<GameObject> scorePool = new Queue<GameObject>();
 
     private void Awake()
     {
@@ -48,6 +50,42 @@ public class EffectSpwan : MonoBehaviour
                         //动画播放结束
                         go.SetActive(false);
                         effectPool.Enqueue(go);
+                    }
+                };
+            }
+
+        }
+        //设置位置
+        go.transform.position = pos;
+        //显示出来
+        go.SetActive(true);
+
+    }
+
+    public void ShowScore(Vector3 pos)
+    {
+        GameObject go;
+        if (scorePool.Count > 0)
+        {
+            //从池子中取
+            go = scorePool.Dequeue();
+        }
+        else
+        {
+            go = Instantiate(scorePrefab);
+            go.transform.SetParent(effectRoot, false);
+            //监听动画帧事件
+            var aniEvent = go.GetComponent<AnimationEvent>();
+            if (aniEvent)
+            {
+                aniEvent.aniEventCallback = (str) =>
+                {
+                    if (str == "finish")
+                    {
+                        Debug.Log("分数隐藏");
+                        //动画播放结束
+                        go.SetActive(false);
+                        scorePool.Enqueue(go);
                     }
                 };
             }
