@@ -82,7 +82,7 @@ public class EffectSpwan : MonoBehaviour
                 {
                     if (str == "finish")
                     {
-                        Debug.Log("分数隐藏");
+                        // Debug.Log("分数隐藏");
                         //动画播放结束
                         go.SetActive(false);
                         scorePool.Enqueue(go);

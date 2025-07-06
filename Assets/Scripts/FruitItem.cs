@@ -41,9 +41,12 @@ public class FruitItem : MonoBehaviour
 
     public void RecycleSelf()
     {
-        Destroy(gameObject);
+
         //播放特效
         EffectSpwan.Instance.ShowEffect(transform.position);
         EffectSpwan.Instance.ShowScore(transform.position);
+        //加分
+        GamePanel.Instance.UpdateScore(100);
+        Destroy(gameObject);
     }
 }

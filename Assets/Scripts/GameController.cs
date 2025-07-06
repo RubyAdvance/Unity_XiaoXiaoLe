@@ -53,7 +53,7 @@ public class GameController : MonoBehaviour
         }
     }
 
-    void Awake()
+    void Start()
     {
         _instance = this;
 
@@ -68,9 +68,18 @@ public class GameController : MonoBehaviour
         }
         SpwanIce();
         SpawanFruits();
+        //延迟2s再进行消除检测
+        StartCoroutine(DelayedAutoEliminate());
+    }
+    // 延迟执行的协程
+    IEnumerator DelayedAutoEliminate()
+    {
+        // 等待2秒
+        yield return new WaitForSeconds(0.5f);
+
+        // 2秒后执行消除检测
         StartCoroutine(AutoEliminate());
     }
-
     /// <summary>
     /// 冰块地图的生成
     /// </summary>
