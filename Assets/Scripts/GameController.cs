@@ -287,7 +287,8 @@ public class GameController : MonoBehaviour
             int row = needToEliminateList[i].row;
             int col = needToEliminateList[i].col;
 
-            Destroy(needToEliminateList[i].gameObject);
+            // Destroy(needToEliminateList[i].gameObject);
+            needToEliminateList[i].RecycleSelf();
 
             // 确保字典中存在该行
             if (fruitItemDict.ContainsKey(row))
@@ -341,54 +342,54 @@ public class GameController : MonoBehaviour
     }
 
 
-    void SpawnNewFruits()
-    {
-        // 统计每列需要生成的新水果数量
-        for (int col = 0; col < colCount; col++)
-        {
-            // 找出该列的所有空位
-            List<int> emptyRows = new List<int>();
-            for (int row = 0; row < rowCount; row++)
-            {
-                if (fruitItemDict[row][col] == null)
-                {
-                    emptyRows.Add(row);
-                }
-            }
+    // void SpawnNewFruits()
+    // {
+    //     // 统计每列需要生成的新水果数量
+    //     for (int col = 0; col < colCount; col++)
+    //     {
+    //         // 找出该列的所有空位
+    //         List<int> emptyRows = new List<int>();
+    //         for (int row = 0; row < rowCount; row++)
+    //         {
+    //             if (fruitItemDict[row][col] == null)
+    //             {
+    //                 emptyRows.Add(row);
+    //             }
+    //         }
 
-            // 如果没有空位，跳过
-            if (emptyRows.Count == 0) continue;
+    //         // 如果没有空位，跳过
+    //         if (emptyRows.Count == 0) continue;
 
-            // 从高到低排序（顶部优先）
-            emptyRows.Sort((a, b) => b.CompareTo(a));
+    //         // 从高到低排序（顶部优先）
+    //         emptyRows.Sort((a, b) => b.CompareTo(a));
 
-            // 生成新水果填充空位
-            for (int i = 0; i < emptyRows.Count; i++)
-            {
-                int targetRow = emptyRows[i];
+    //         // 生成新水果填充空位
+    //         for (int i = 0; i < emptyRows.Count; i++)
+    //         {
+    //             int targetRow = emptyRows[i];
 
-                // 随机生成水果
-                var fruitPrefab = fruitPrefabs[UnityEngine.Random.Range(0, fruitPrefabs.Length)];
-                var obj = Instantiate(fruitPrefab, fruitParent);
+    //             // 随机生成水果
+    //             var fruitPrefab = fruitPrefabs[UnityEngine.Random.Range(0, fruitPrefabs.Length)];
+    //             var obj = Instantiate(fruitPrefab, fruitParent);
 
-                // 设置初始位置在顶部上方
-                Vector3 topPos = icePosDict[rowCount - 1][col];
-                float spawnHeight = topPos.y + iceWidth * (emptyRows.Count - i);
-                obj.transform.localPosition = new Vector3(topPos.x, spawnHeight, topPos.z);
+    //             // 设置初始位置在顶部上方
+    //             Vector3 topPos = icePosDict[rowCount - 1][col];
+    //             float spawnHeight = topPos.y + iceWidth * (emptyRows.Count - i);
+    //             obj.transform.localPosition = new Vector3(topPos.x, spawnHeight, topPos.z);
 
-                // 初始化水果
-                var fruitItem = obj.GetComponent<FruitItem>();
-                fruitItem.row = targetRow;
-                fruitItem.col = col;
+    //             // 初始化水果
+    //             var fruitItem = obj.GetComponent<FruitItem>();
+    //             fruitItem.row = targetRow;
+    //             fruitItem.col = col;
 
-                // 立即更新位置（从上方掉落）
-                fruitItem.UpdateRowCol(targetRow, col);
+    //             // 立即更新位置（从上方掉落）
+    //             fruitItem.UpdateRowCol(targetRow, col);
 
-                // 更新字典引用
-                fruitItemDict[targetRow][col] = fruitItem;
-            }
-        }
-    }
+    //             // 更新字典引用
+    //             fruitItemDict[targetRow][col] = fruitItem;
+    //         }
+    //     }
+    // }
 
     IEnumerator AutoEliminate()
     {

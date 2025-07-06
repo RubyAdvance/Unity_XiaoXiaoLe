@@ -441,6 +441,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0d7eab92aacd94fbd924ad12348248f0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  rowCount: 9
+  colCount: 7
   iceWidth: 0.98
   icePrefab: {fileID: 1062310726}
   iceParent: {fileID: 1845870951}
@@ -452,6 +454,7 @@ MonoBehaviour:
   - {fileID: 4284805682473295380, guid: 1564bcf17d0bc48b4b2e436d8892ff0f, type: 3}
   - {fileID: 7922391712176513476, guid: 6242e5051874f4ac48baf028b713ab5b, type: 3}
   - {fileID: 7934171758095236014, guid: f50e078203c25498db2c0dd4ff738432, type: 3}
+  curFruiItem: {fileID: 0}
 --- !u!1 &549924236
 GameObject:
   m_ObjectHideFlags: 0
@@ -528,6 +531,52 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 549924236}
   m_CullTransparentMesh: 1
+--- !u!1 &629330743
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 629330744}
+  - component: {fileID: 629330745}
+  m_Layer: 0
+  m_Name: EffectSpwan
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &629330744
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 629330743}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2083270540}
+  m_RootOrder: 2
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &629330745
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 629330743}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 843cb4fd6d7c8d5489c4ce1a18cc21e0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  effectPrefab: {fileID: 254876662205252837, guid: a3fc9a7ba8a3735469e1e013ef83fd81, type: 3}
+  effectRoot: {fileID: 629330744}
 --- !u!1 &1062310726
 GameObject:
   m_ObjectHideFlags: 0
@@ -965,6 +1014,7 @@ Transform:
   m_Children:
   - {fileID: 1845870951}
   - {fileID: 146904497}
+  - {fileID: 629330744}
   m_Father: {fileID: 0}
   m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}

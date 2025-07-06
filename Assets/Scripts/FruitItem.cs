@@ -38,4 +38,11 @@ public class FruitItem : MonoBehaviour
         if (GameController.instance.curFruiItem != null) Debug.LogError("持有的不为空！！");
         GameController.instance.curFruiItem = this;
     }
+
+    public void RecycleSelf()
+    {
+        Destroy(gameObject);
+        //播放特效
+        EffectSpwan.Instance.ShowEffect(transform.position);
+    }
 }
